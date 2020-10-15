@@ -1,6 +1,6 @@
 from dbManager import dbManager
 from fileManager import fileManager
-
+import xlrd
 
 class App:
     def __init__(self):
@@ -64,7 +64,7 @@ class App:
 
     def menu(self, user_name):
         self.user_name = user_name
-        first_msg = "1- Yorum Ekle\n2- JSON'daki Verileri Gözlemle\n3- Database'deki Verileri Gözlemle"
+        first_msg = "1- Yorum Ekle\n2- JSON'daki Verileri Gözlemle\n3- Database'deki Verileri Gözlemle\n4- Excel Dosyası İçerisindeki Verilerin Analizi"
 
         while True:
             print(first_msg)
@@ -78,6 +78,9 @@ class App:
             
             elif input_msg == '3':
                 self.importDb()
+                
+            elif input_msg == '4':
+                self.importExcel()
 
             else:
                 break
@@ -133,9 +136,48 @@ class App:
     
     def importDb(self):
         d = self.dM()
-        result = d.importComment('user', self.user_name)
+        msg = "1- Kullanıcıya Göre\n2- Yoruma Göre"
+        while True:
+            import_msg = input("Aramak İstediğiniz Alanı Seçeniz: ")
 
-        for i in result:
-            print(i)
+            if import_msg == 'u':
+                result = d.importComment(self.user_name, 'user', self.user_name)
+
+                for i in result:
+                    print(f"Kullanıcı Adı: {i['user']} | Yorum: {i['comment']}")
+                break
+            
+            elif import_msg == 'c':
+                comment_msg = input("Aramak İstediğiniz Yorumu Yazınız: ")
+                result = d.importComment(self.user_name, 'comment', 'iyi')
+
+                for i in result:
+                    print(f"Kullanıcı Adı: {i['user']} | Yorum: {i['comment']}")
+
+            else:
+                break
+    
+    def importExcel(self):
+        exel_file = input("Dosya Adınızı Giriniz: ")
+        loc = exel_file
+        wb = xlrd.open_workbook(loc) 
+        sheet = wb.sheet_by_index(0)
+
+        liste = []
+        for col_index in range(sheet.ncols):
+            for i in range(0, sheet.nrows):
+                excel_comment = sheet.cell(i, col_index).value
+                
+                my_dict = {}
+                my_dict['user'] = self.user_name
+                my_dict['comment'] = excel_comment
+
+                liste.append(my_dict)
+        
+        print(liste)
+        d = self.dM()
+        d.addComment(liste)
+        
+
 
 App().userMenu()

@@ -8,13 +8,15 @@ class dbManager:
     def addComment(self, datas):
         self.comment_collection.insert_many(datas)
     
-    def addUser(self, user):
-        self.user_collection.insert_one(user)
     
-    def importComment(self, my_key, my_value):
-        result = self.comment_collection.find({my_key : my_value}, {'_id' : 0})
+    def importComment(self, user_name, my_key, my_value):
+        result = self.comment_collection.find({'$and': [{'user': {'$eq': user_name}}, {my_key: {'$eq': my_value}}]}, {'_id': 0})
 
         return result
+
+
+    def addUser(self, user):
+        self.user_collection.insert_one(user)
     
     def loginControl(self, user_name, user_password):
         result = self.user_collection.find_one({'$and':[{'name': {'$eq': user_name}}, {'password': {'$eq': user_password}}]})
