@@ -1,6 +1,7 @@
 from dbManager import dbManager
 from fileManager import fileManager
 import xlrd
+import xlwt
 
 class App:
     def __init__(self):
@@ -78,9 +79,11 @@ class App:
             
             elif input_msg == '3':
                 self.importDb()
-                
+
             elif input_msg == '4':
                 self.importExcel()
+            elif input_msg == '5':
+                self.exportExcel()
 
             else:
                 break
@@ -158,25 +161,61 @@ class App:
                 break
     
     def importExcel(self):
-        exel_file = input("Dosya Adınızı Giriniz: ")
-        loc = exel_file
+        exel_file = input("Dosya Adınızı Giriniz [*xlsx]: ")
+
+        if '.xlsx' in exel_file:
+            loc = exel_file
+
+        else:
+            loc = exel_file + '.xlsx'
+
         wb = xlrd.open_workbook(loc) 
         sheet = wb.sheet_by_index(0)
 
-        liste = []
-        for col_index in range(sheet.ncols):
-            for i in range(0, sheet.nrows):
-                excel_comment = sheet.cell(i, col_index).value
-                
-                my_dict = {}
-                my_dict['user'] = self.user_name
-                my_dict['comment'] = excel_comment
+        if '.xlsx' in loc:
+            liste = []
+            for col_index in range(sheet.ncols):
+                for i in range(0, sheet.nrows):
+                    excel_comment = sheet.cell(i, col_index).value
+                    
+                    my_dict = {}
+                    my_dict['user'] = self.user_name
+                    my_dict['comment'] = excel_comment
 
-                liste.append(my_dict)
+                    liste.append(my_dict)
+            
+            print(liste)
+            d = self.dM()
+            d.addComment(liste)
         
-        print(liste)
-        d = self.dM()
-        d.addComment(liste)
+        else:
+            print("Geçersiz Dosya Türü!")
+    
+    def exportExcel(self):
+        data1 = [['User', 'Comment']]
+        
+        
+        while True:
+            deneme = input("Yorum Giriniz: ")
+            user = self.user_name
+
+            data1.append([user, deneme])
+
+            dm = input("Kapat: ")
+            if dm == 'x':
+                print(data1)
+                break
+
+
+        wb = xlwt.Workbook()
+
+        ws = wb.add_sheet("Test Sheet")
+
+        for row, row_value in enumerate(data1):
+            for col, col_value in enumerate(row_value):
+                ws.write(row, col, col_value)
+
+        wb.save("deneme1.xls")
         
 
 
