@@ -1,7 +1,7 @@
 from dbManager import dbManager
 from fileManager import fileManager
 import xlrd
-import xlwt
+
 
 class App:
     def __init__(self):
@@ -92,6 +92,7 @@ class App:
         comment_size = int(input("Kaç Yorum Girilecek: "))
 
         comment_list = []
+        excel_list = []
         while comment_size > 0:
             comment = input("Yorum Giriniz: ")
             commnet_dict = {}
@@ -99,12 +100,13 @@ class App:
             commnet_dict['comment'] = comment
 
             comment_list.append(commnet_dict)
+            excel_list.append([self.user_name, comment])
             
             comment_size -= 1
 
             if comment_size == 0:
 
-                add_msg = "d- Database'e kaydet\nj- JSON'a kaydet\nl- Exel'e kaydet"
+                add_msg = "d- Database'e kaydet\nj- JSON'a kaydet\nl- Excel'e kaydet"
                 d = self.dM()
 
                 while True:
@@ -112,17 +114,26 @@ class App:
                     choose_add = input("Eklemek İstediğiniz Alanı Seçiniz: ")
 
                     if choose_add == "d":
+                        #*Tek bir fonksiyona indir
                         print(comment_list)     
                         d.addComment(comment_list)
                         break
 
                     elif choose_add == "j":
+                        #*Tek bir fonksiyona indir
                         print(comment_list) 
                         file_name = input("JSON Dosyasını Giriniz: ")
                         file_name = file_name + '.json'
                         
                         f = self.fM(file_name)
                         f.addJson(comment_list)
+
+                        d.addComment(comment_list) #*db'ye kaydet
+                        break
+
+                    elif choose_add == 'l':
+                        #*Tek bir fonksiyona indir
+                        self.exportExcel(excel_list)
                         break
 
                     else:
@@ -174,6 +185,7 @@ class App:
 
         if '.xlsx' in loc:
             liste = []
+            excel_list = []
             for col_index in range(sheet.ncols):
                 for i in range(0, sheet.nrows):
                     excel_comment = sheet.cell(i, col_index).value
@@ -183,39 +195,51 @@ class App:
                     my_dict['comment'] = excel_comment
 
                     liste.append(my_dict)
+                    excel_list.append([self.user_name, excel_comment])
             
             print(liste)
-            d = self.dM()
-            d.addComment(liste)
+            # d = self.dM()
+            # d.addComment(liste)
+
+            while True:
+                import_msg = "1- JSON Olarak Kaydet\n 2- Excel Olarak Kaydet\n 3- Çıkış"
+                choose_import = input("Yapacağınız İşlemi Seçiniz: ")
+
+                if choose_import == '1':
+                    #*Tek bir fonksiyona indir
+                    file_name = input("JSON Dosyasını Giriniz: ")
+                    file_name = file_name + '.json'
+                        
+                    f = self.fM(file_name)
+                    f.addJson(liste)
+
+                    d = self.dM()#*Tek bir fonksiyona indir
+                    d.addComment(liste)
+                
+                elif choose_import == '2':
+                    #*Tek bir fonksiyona indir
+                    self.exportExcel(excel_list)
+                
+                elif choose_import == '3':       
+                    break
         
         else:
             print("Geçersiz Dosya Türü!")
     
-    def exportExcel(self):
+    def exportExcel(self, my_liste):
+
+        exel_file = input("Dosya Adını Giriniz [*xls]: ")
+        exel_file = exel_file + '.xls'
         data1 = [['User', 'Comment']]
         
+        for i in my_liste:
+            data1.append(i)
         
-        while True:
-            deneme = input("Yorum Giriniz: ")
-            user = self.user_name
+        f = self.fM(exel_file)
+        f.exportExcel(self.user_name, data1)
+        
 
-            data1.append([user, deneme])
-
-            dm = input("Kapat: ")
-            if dm == 'x':
-                print(data1)
-                break
-
-
-        wb = xlwt.Workbook()
-
-        ws = wb.add_sheet("Test Sheet")
-
-        for row, row_value in enumerate(data1):
-            for col, col_value in enumerate(row_value):
-                ws.write(row, col, col_value)
-
-        wb.save("deneme1.xls")
+        
         
 
 
