@@ -107,32 +107,22 @@ class App:
             if comment_size == 0:
 
                 add_msg = "d- Database'e kaydet\nj- JSON'a kaydet\nl- Excel'e kaydet"
-                d = self.dM()
 
                 while True:
                     print(add_msg)
                     choose_add = input("Eklemek İstediğiniz Alanı Seçiniz: ")
 
                     if choose_add == "d":
-                        #*Tek bir fonksiyona indir
                         print(comment_list)     
-                        d.addComment(comment_list)
+                        self.addDb(comment_list)
                         break
 
                     elif choose_add == "j":
-                        #*Tek bir fonksiyona indir
                         print(comment_list) 
-                        file_name = input("JSON Dosyasını Giriniz: ")
-                        file_name = file_name + '.json'
-                        
-                        f = self.fM(file_name)
-                        f.addJson(comment_list)
-
-                        d.addComment(comment_list) #*db'ye kaydet
+                        self.addJson(comment_list)
                         break
 
                     elif choose_add == 'l':
-                        #*Tek bir fonksiyona indir
                         self.exportExcel(excel_list)
                         break
 
@@ -206,18 +196,9 @@ class App:
                 choose_import = input("Yapacağınız İşlemi Seçiniz: ")
 
                 if choose_import == '1':
-                    #*Tek bir fonksiyona indir
-                    file_name = input("JSON Dosyasını Giriniz: ")
-                    file_name = file_name + '.json'
-                        
-                    f = self.fM(file_name)
-                    f.addJson(liste)
-
-                    d = self.dM()#*Tek bir fonksiyona indir
-                    d.addComment(liste)
+                    self.addJson(liste)
                 
                 elif choose_import == '2':
-                    #*Tek bir fonksiyona indir
                     self.exportExcel(excel_list)
                 
                 elif choose_import == '3':       
@@ -237,6 +218,21 @@ class App:
         
         f = self.fM(exel_file)
         f.exportExcel(self.user_name, data1)
+    
+    def addDb(self, my_liste):
+        d = self.dM()
+        d.addComment(my_liste)
+        print("Veriler Database'e Kaydedildi")
+    
+    def addJson(self, my_liste):
+        file_name = input("JSON Dosyasını Giriniz: ")
+        file_name = file_name + '.json'
+                        
+        f = self.fM(file_name)
+        f.addJson(my_liste)
+
+        print("Veriler JSON Dosyasına Kaydedildi")
+
         
 
         
