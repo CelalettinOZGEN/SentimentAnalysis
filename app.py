@@ -82,8 +82,6 @@ class App:
 
             elif input_msg == '4':
                 self.importExcel()
-            elif input_msg == '5':
-                self.exportExcel()
 
             else:
                 break
@@ -124,6 +122,7 @@ class App:
 
                     elif choose_add == 'l':
                         self.exportExcel(excel_list)
+                        self.addDb(comment_list)
                         break
 
                     else:
@@ -139,24 +138,21 @@ class App:
             print(i)
     
     def importDb(self):
-        d = self.dM()
-        msg = "1- Kullanıcıya Göre\n2- Yoruma Göre"
+        find_choose = "u- Kullanıcıya Göre Ara\nc- Yoruma Göre Ara"
+
         while True:
+            print(find_choose)
             import_msg = input("Aramak İstediğiniz Alanı Seçeniz: ")
 
             if import_msg == 'u':
-                result = d.importComment(self.user_name, 'user', self.user_name)
-
-                for i in result:
-                    print(f"Kullanıcı Adı: {i['user']} | Yorum: {i['comment']}")
+                self.viewDb('user', self.user_name)
                 break
             
             elif import_msg == 'c':
                 comment_msg = input("Aramak İstediğiniz Yorumu Yazınız: ")
-                result = d.importComment(self.user_name, 'comment', 'iyi')
-
-                for i in result:
-                    print(f"Kullanıcı Adı: {i['user']} | Yorum: {i['comment']}")
+                self.viewDb('comment', comment_msg)
+                break
+            #sentiment sonucuna göre gelecek...
 
             else:
                 break
@@ -174,7 +170,7 @@ class App:
         sheet = wb.sheet_by_index(0)
 
         if '.xlsx' in loc:
-            liste = []
+            db_list = []
             excel_list = []
             for col_index in range(sheet.ncols):
                 for i in range(0, sheet.nrows):
@@ -184,22 +180,24 @@ class App:
                     my_dict['user'] = self.user_name
                     my_dict['comment'] = excel_comment
 
-                    liste.append(my_dict)
+                    db_list.append(my_dict)
                     excel_list.append([self.user_name, excel_comment])
             
-            print(liste)
-            # d = self.dM()
-            # d.addComment(liste)
+            print(db_list)
 
+            import_msg = "1- JSON Olarak Kaydet\n2- Excel Olarak Kaydet\n3- Çıkış"
             while True:
-                import_msg = "1- JSON Olarak Kaydet\n 2- Excel Olarak Kaydet\n 3- Çıkış"
+                print(import_msg)
                 choose_import = input("Yapacağınız İşlemi Seçiniz: ")
 
                 if choose_import == '1':
-                    self.addJson(liste)
+                    self.addJson(db_list)
+                    break
                 
                 elif choose_import == '2':
                     self.exportExcel(excel_list)
+                    self.addDb(db_list)
+                    break
                 
                 elif choose_import == '3':       
                     break
@@ -207,31 +205,52 @@ class App:
         else:
             print("Geçersiz Dosya Türü!")
     
-    def exportExcel(self, my_liste):
+    def exportExcel(self, excel_list):
 
-        exel_file = input("Dosya Adını Giriniz [*xls]: ")
-        exel_file = exel_file + '.xls'
-        data1 = [['User', 'Comment']]
+        file_name = input("Dosya Adını Giriniz [*xls]: ")
+        if '.xls' in file_name:
+            file_name = file_name
+        else:
+            file_name = file_name + '.xls'
+
+        table_data = [['User', 'Comment']]
         
-        for i in my_liste:
-            data1.append(i)
+        for i in excel_list:
+            table_data.append(i)
         
-        f = self.fM(exel_file)
-        f.exportExcel(self.user_name, data1)
+        f = self.fM(file_name)
+        f.exportExcel(self.user_name, table_data)
+
+        print(f"Veriler '{file_name}' Dosyasına Kaydedildi")
     
-    def addDb(self, my_liste):
+    def addDb(self, db_list):
         d = self.dM()
-        d.addComment(my_liste)
-        print("Veriler Database'e Kaydedildi")
+        d.addComment(db_list)
+        print("Veriler Database'e Aktarıldı")
     
-    def addJson(self, my_liste):
-        file_name = input("JSON Dosyasını Giriniz: ")
-        file_name = file_name + '.json'
+    def addJson(self, json_list):
+        file_name = input("JSON Dosyasını Giriniz [*json]: ")
+
+        if '.json' in file_name:
+            file_name = file_name
+
+        else:
+            file_name = file_name + '.json'
                         
         f = self.fM(file_name)
-        f.addJson(my_liste)
+        f.addJson(json_list)
+        print(f"Veriler '{file_name}' Dosyasına Kaydedildi")
 
-        print("Veriler JSON Dosyasına Kaydedildi")
+        self.addDb(json_list)
+    
+    def viewDb(self, key, value):
+        d = self.dM()
+
+        result = d.importComment(self.user_name, key, value)
+
+        print(f"'{self.user_name}' kullanıcısının '{key}' anahtarındaki '{value}' yorumları: \n")
+        for i in result:
+            print(f"Kullanıcı Adı: {i['user']} | Yorum: {i['comment']}")
 
         
 
