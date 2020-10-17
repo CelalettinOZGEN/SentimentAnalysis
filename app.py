@@ -2,6 +2,9 @@ from dbManager import dbManager
 from fileManager import fileManager
 import xlrd
 
+from Sentiment import tokens_to_string, tokenizer, pad_sequences, max_tokens
+from tensorflow.python.keras.models import load_model
+
 
 class App:
     def __init__(self):
@@ -93,12 +96,11 @@ class App:
         excel_list = []
         while comment_size > 0:
             comment = input("Yorum Giriniz: ")
-            commnet_dict = {}
-            commnet_dict['user'] = self.user_name
-            commnet_dict['comment'] = comment
+
+            commnet_dict = self.sentimentAnalysis(comment)
 
             comment_list.append(commnet_dict)
-            excel_list.append([self.user_name, comment])
+            #excel_list.append([self.user_name, comment, float(sentiment), analysis])
             
             comment_size -= 1
 
@@ -174,7 +176,7 @@ class App:
         else:
             file_name = file_name + '.xls'
 
-        table_data = [['User', 'Comment']]
+        table_data = [['User', 'Comment', 'Rate', 'Sentiment']]
         
         for i in excel_list:
             table_data.append(i)
@@ -228,7 +230,7 @@ class App:
                 self.exportExcel(excel_list)
                 self.addDb(db_list)
                 break
-            # her ikisinede aktarmayı yap.
+
             elif choose_import == 't':
                 self.addJson(db_list)
                 self.exportExcel(excel_list)
@@ -236,6 +238,29 @@ class App:
                 
             elif choose_import == 'x':       
                 break
+    
+    def sentimentAnalysis(self, comment):
+        model = load_model('model.h5')
+        texts=[comment]
+        tokens = tokenizer.texts_to_sequences(texts)
+        tokens_pad = pad_sequences(tokens, maxlen=max_tokens)
+        sentiment = model.predict(tokens_pad)
+
+        if (sentiment>=0.85):
+            analysis = "Pozitif"
+        elif (0.40 <= sentiment < 0.85):
+            analysis = "Nötr"
+        else:
+            analysis = "Negatif"
+                
+            
+        commnet_dict = {}
+        commnet_dict['user'] = self.user_name
+        commnet_dict['comment'] = comment
+        commnet_dict['rate'] = float(sentiment)
+        commnet_dict['analysis'] = analysis
+
+        return commnet_dict
 
         
 App().userMenu()
