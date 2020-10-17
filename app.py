@@ -103,31 +103,8 @@ class App:
             comment_size -= 1
 
             if comment_size == 0:
-
-                add_msg = "d- Database'e kaydet\nj- JSON'a kaydet\nl- Excel'e kaydet"
-
-                while True:
-                    print(add_msg)
-                    choose_add = input("Eklemek İstediğiniz Alanı Seçiniz: ")
-
-                    if choose_add == "d":
-                        print(comment_list)     
-                        self.addDb(comment_list)
-                        break
-
-                    elif choose_add == "j":
-                        print(comment_list) 
-                        self.addJson(comment_list)
-                        break
-
-                    elif choose_add == 'l':
-                        self.exportExcel(excel_list)
-                        self.addDb(comment_list)
-                        break
-
-                    else:
-                        break
-    
+                self.innerMenu(comment_list,excel_list)
+ 
     def viewJson(self):
         file_name = input("Dosyanızın Adını Giriniz: ")
 
@@ -184,23 +161,7 @@ class App:
                     excel_list.append([self.user_name, excel_comment])
             
             print(db_list)
-
-            import_msg = "1- JSON Olarak Kaydet\n2- Excel Olarak Kaydet\n3- Çıkış"
-            while True:
-                print(import_msg)
-                choose_import = input("Yapacağınız İşlemi Seçiniz: ")
-
-                if choose_import == '1':
-                    self.addJson(db_list)
-                    break
-                
-                elif choose_import == '2':
-                    self.exportExcel(excel_list)
-                    self.addDb(db_list)
-                    break
-                
-                elif choose_import == '3':       
-                    break
+            self.innerMenu(db_list, excel_list)
         
         else:
             print("Geçersiz Dosya Türü!")
@@ -252,10 +213,29 @@ class App:
         for i in result:
             print(f"Kullanıcı Adı: {i['user']} | Yorum: {i['comment']}")
 
-        
+    def innerMenu(self, db_list, excel_list):
+        import_msg = "j- JSON'a Kaydet\nl- Excel'e Kaydet\nt- JSON ve Excel'e Kaydet"
+
+        while True:
+            print(import_msg)
+            choose_import = input("Eklemek İstediğiniz Dosya Türünü Seçiniz: ")
+
+            if choose_import == 'j':
+                self.addJson(db_list)
+                break
+                
+            elif choose_import == 'l':
+                self.exportExcel(excel_list)
+                self.addDb(db_list)
+                break
+            # her ikisinede aktarmayı yap.
+            elif choose_import == 't':
+                self.addJson(db_list)
+                self.exportExcel(excel_list)
+                break
+                
+            elif choose_import == 'x':       
+                break
 
         
-        
-
-
 App().userMenu()
