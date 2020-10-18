@@ -5,13 +5,13 @@ import xlrd
 from Sentiment import tokens_to_string, tokenizer, pad_sequences, max_tokens
 from tensorflow.python.keras.models import load_model
 
-
 class App:
     def __init__(self):
         self.dM = dbManager
         self.fM = fileManager
     
     def userMenu(self):
+        print(100 * '-')
         msg = "e- Giriş Yap\nr- Kayıt Ol"
 
         while True:
@@ -23,9 +23,11 @@ class App:
                 self.user_register()
             else:
                 break
+        print('\n')
     
     def user_login(self):
         hak = 3
+        print(100 * '-')
         while hak > 0:
             user_name = input("Kullanıcı Adınız: ")
             user_password = input("Kullanıcı Şifreniz: ")
@@ -43,6 +45,7 @@ class App:
 
                 if hak == 0:
                     self.user_register()
+        print('\n')
 
     def user_register(self):
         while True:
@@ -65,13 +68,16 @@ class App:
                 print("Kullanıcınız Oluşturulmuştur")
                 break
             
-
     def menu(self, user_name):
+        print(100 * '-')
         self.user_name = user_name
+        print(f"Hoşgeldin {self.user_name}\n")
         first_msg = "1- Yorum Ekle\n2- JSON'daki Verileri Gözlemle\n3- Database'deki Verileri Gözlemle\n4- Excel Dosyası İçerisindeki Verilerin Analizi"
 
+        
         while True:
             print(first_msg)
+            print(100 * '#')
             input_msg = input("Menüden Bir İşlem Seçiniz: ")
 
             if input_msg == '1':
@@ -90,10 +96,13 @@ class App:
                 break
     
     def addComment(self):
+        print('\n')
+        print(100 * '-')
         comment_size = int(input("Kaç Yorum Girilecek: "))
 
         liste = []
         while comment_size > 0:
+            print(100 * '*')
             comment = input("Yorum Giriniz: ")
 
             liste.append(comment)
@@ -102,8 +111,7 @@ class App:
 
             if comment_size == 0:
                 self.denemeFunc(liste)
-                        
-                
+                                       
     def viewJson(self):
         file_name = input("Dosyanızın Adını Giriniz: ")
 
@@ -114,7 +122,7 @@ class App:
             print(i)
     
     def importDb(self):
-        find_choose = "u- Kullanıcıya Göre Ara\nc- Yoruma Göre Ara\ns- Duygu Analizine Göre"
+        find_choose = "u- Kullanıcıya Göre Ara\nc- Yoruma Göre Ara\ns- Duygu Analizine Göre\nx- Çıkış"
 
         while True:
             print(find_choose)
@@ -141,7 +149,7 @@ class App:
                     self.viewDb('analysis', "Nötr")
                 break
 
-            else:
+            elif import_msg == 'x':
                 break
     
     def importExcel(self):
@@ -153,22 +161,22 @@ class App:
         else:
             loc = exel_file + '.xlsx'
 
-        wb = xlrd.open_workbook(loc) 
-        sheet = wb.sheet_by_index(0)
+        try:
+            wb = xlrd.open_workbook(loc) 
+            sheet = wb.sheet_by_index(0)
 
-        if '.xlsx' in loc:
-            
-            liste = []
-            for col_index in range(sheet.ncols):
-                for i in range(0, sheet.nrows):
-                    excel_comment = sheet.cell(i, col_index).value
+            if '.xlsx' in loc:
+                
+                liste = []
+                for col_index in range(sheet.ncols):
+                    for i in range(0, sheet.nrows):
+                        excel_comment = sheet.cell(i, col_index).value
 
-                    liste.append(excel_comment)
+                        liste.append(excel_comment)
 
-            self.denemeFunc(liste)
-        
-        else:
-            print("Geçersiz Dosya Türü!")
+                self.denemeFunc(liste)
+        except FileNotFoundError:
+            print("Dosya Bulunamadı")
     
     def exportExcel(self, excel_list):
 
@@ -178,19 +186,23 @@ class App:
         else:
             file_name = file_name + '.xls'
 
-        table_data = [['User', 'Comment', 'Rate', 'Sentiment']]
-        
-        for i in excel_list:
-            table_data.append(i)
-        
-        f = self.fM(file_name)
-        f.exportExcel(self.user_name, table_data)
+        try:
+            table_data = [['User', 'Comment', 'Rate', 'Sentiment']]
+            
+            for i in excel_list:
+                table_data.append(i)
+            
+            f = self.fM(file_name)
+            f.exportExcel(self.user_name, table_data)
 
-        print(f"Veriler '{file_name}' Dosyasına Kaydedildi")
+            print(f"Veriler '{file_name}' Dosyasına Kaydedildi")
+        except FileNotFoundError or FileExistsError:
+            print("Dosya Bulunamadı veya Geçersiz Dosya Türü")
     
     def addDb(self, db_list):
         d = self.dM()
         d.addComment(db_list)
+        print('\n')
         print("Veriler Database'e Aktarıldı")
     
     def addJson(self, json_list):
@@ -201,10 +213,14 @@ class App:
 
         else:
             file_name = file_name + '.json'
-                        
-        f = self.fM(file_name)
-        f.addJson(json_list)
-        print(f"Veriler '{file_name}' Dosyasına Kaydedildi")
+
+        try:              
+            f = self.fM(file_name)
+            f.addJson(json_list)
+            print('\n')
+            print(f"Veriler '{file_name}' Dosyasına Kaydedildi")
+        except FileNotFoundError or FileExistsError:
+            print("Dosya Bulunamadı veya Geçersiz Dosya Türü")
 
         self.addDb(json_list)
     
@@ -218,10 +234,12 @@ class App:
             print(f"Kullanıcı Adı: {i['user']} | Yorum: {i['comment']} | Rate: {i['rate']} | Analiz: {i['analysis']}")
 
     def innerMenu(self, db_list, excel_list):
-        import_msg = "j- JSON'a Kaydet\nl- Excel'e Kaydet\nt- JSON ve Excel'e Kaydet"
+        print(100 * '-')
+        import_msg = "j- JSON'a Kaydet\nl- Excel'e Kaydet\nt- JSON ve Excel'e Kaydet\nx- Çıkış"
 
         while True:
             print(import_msg)
+            print(100 * '#')
             choose_import = input("Eklemek İstediğiniz Dosya Türünü Seçiniz: ")
 
             if choose_import == 'j':
