@@ -92,21 +92,30 @@ class App:
     def addComment(self):
         comment_size = int(input("Kaç Yorum Girilecek: "))
 
-        comment_list = []
-        excel_list = []
+        liste = []
         while comment_size > 0:
             comment = input("Yorum Giriniz: ")
 
-            commnet_dict = self.sentimentAnalysis(comment)
-
-            comment_list.append(commnet_dict)
-            #excel_list.append([self.user_name, comment, float(sentiment), analysis])
+            liste.append(comment)
             
             comment_size -= 1
 
             if comment_size == 0:
-                self.innerMenu(comment_list,excel_list)
- 
+
+                deneme_list = []
+                for i in liste:
+                    deneme = self.sentimentAnalysis(i)
+
+                    for j in deneme:
+                        sentiment = j[0]
+                        analysis = j[1]
+
+                    deneme_list.append([i, sentiment, analysis])
+                
+                comment_list = self.jsonSend(deneme_list)
+                excel_list = self.excelSend(deneme_list)
+                self.innerMenu(comment_list, excel_list)
+                
     def viewJson(self):
         file_name = input("Dosyanızın Adını Giriniz: ")
 
@@ -149,21 +158,28 @@ class App:
         sheet = wb.sheet_by_index(0)
 
         if '.xlsx' in loc:
-            db_list = []
-            excel_list = []
+            
+            liste = []
             for col_index in range(sheet.ncols):
                 for i in range(0, sheet.nrows):
                     excel_comment = sheet.cell(i, col_index).value
-                    
-                    my_dict = {}
-                    my_dict['user'] = self.user_name
-                    my_dict['comment'] = excel_comment
 
-                    db_list.append(my_dict)
-                    excel_list.append([self.user_name, excel_comment])
-            
-            print(db_list)
-            self.innerMenu(db_list, excel_list)
+                    liste.append(excel_comment)
+                
+            print(liste)
+
+            deneme_list = []
+            for i in liste:
+                deneme = self.sentimentAnalysis(i)
+
+                for j in deneme:
+                    sentiment = j[0]
+                    analysis = j[1]
+                deneme_list.append([i, sentiment, analysis])
+                
+            comment_list = self.jsonSend(deneme_list)
+            excel_list = self.excelSend(deneme_list)
+            self.innerMenu(comment_list, excel_list)
         
         else:
             print("Geçersiz Dosya Türü!")
@@ -240,6 +256,8 @@ class App:
                 break
     
     def sentimentAnalysis(self, comment):
+        my_list =[]
+
         model = load_model('model.h5')
         texts=[comment]
         tokens = tokenizer.texts_to_sequences(texts)
@@ -252,15 +270,32 @@ class App:
             analysis = "Nötr"
         else:
             analysis = "Negatif"
+        
+        my_list.append([float(sentiment), analysis])
+
+        return my_list
+
+    def jsonSend(self, my_list):
+
+        comment_list = []
+        for i in my_list:
+            commnet_dict = {}
+            commnet_dict['user'] = self.user_name
+            commnet_dict['comment'] = i[0]
+            commnet_dict['rate'] = i[1]
+            commnet_dict['analysis'] = i[2]
+
+            comment_list.append(commnet_dict)
+        
+        return comment_list
+
+    def excelSend(self, my_list):
+
+        excel_list = []
+        for i in my_list:
+            excel_list.append([self.user_name, i[0], i[1], i[2]])
+
+        return excel_list
                 
-            
-        commnet_dict = {}
-        commnet_dict['user'] = self.user_name
-        commnet_dict['comment'] = comment
-        commnet_dict['rate'] = float(sentiment)
-        commnet_dict['analysis'] = analysis
-
-        return commnet_dict
-
         
 App().userMenu()
