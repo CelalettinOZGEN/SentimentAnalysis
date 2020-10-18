@@ -101,20 +101,8 @@ class App:
             comment_size -= 1
 
             if comment_size == 0:
-
-                deneme_list = []
-                for i in liste:
-                    deneme = self.sentimentAnalysis(i)
-
-                    for j in deneme:
-                        sentiment = j[0]
-                        analysis = j[1]
-
-                    deneme_list.append([i, sentiment, analysis])
-                
-                comment_list = self.jsonSend(deneme_list)
-                excel_list = self.excelSend(deneme_list)
-                self.innerMenu(comment_list, excel_list)
+                self.denemeFunc(liste)
+                        
                 
     def viewJson(self):
         file_name = input("Dosyanızın Adını Giriniz: ")
@@ -126,7 +114,7 @@ class App:
             print(i)
     
     def importDb(self):
-        find_choose = "u- Kullanıcıya Göre Ara\nc- Yoruma Göre Ara"
+        find_choose = "u- Kullanıcıya Göre Ara\nc- Yoruma Göre Ara\ns- Duygu Analizine Göre"
 
         while True:
             print(find_choose)
@@ -140,7 +128,18 @@ class App:
                 comment_msg = input("Aramak İstediğiniz Yorumu Yazınız: ")
                 self.viewDb('comment', comment_msg)
                 break
-            #sentiment sonucuna göre gelecek...
+            
+            elif import_msg == 's':
+                print("p- Pozitif\nn- Negatif\nr- Nötr")
+                inner_input = input("Aramak İstediğiniz Duygu Analizi Sonucunu Giriniz: ")
+
+                if inner_input == "p":
+                    self.viewDb('analysis', "Pozitif")
+                elif inner_input == "n":
+                    self.viewDb('analysis', "Negatif")
+                elif inner_input == "r":
+                    self.viewDb('analysis', "Nötr")
+                break
 
             else:
                 break
@@ -165,21 +164,8 @@ class App:
                     excel_comment = sheet.cell(i, col_index).value
 
                     liste.append(excel_comment)
-                
-            print(liste)
 
-            deneme_list = []
-            for i in liste:
-                deneme = self.sentimentAnalysis(i)
-
-                for j in deneme:
-                    sentiment = j[0]
-                    analysis = j[1]
-                deneme_list.append([i, sentiment, analysis])
-                
-            comment_list = self.jsonSend(deneme_list)
-            excel_list = self.excelSend(deneme_list)
-            self.innerMenu(comment_list, excel_list)
+            self.denemeFunc(liste)
         
         else:
             print("Geçersiz Dosya Türü!")
@@ -229,7 +215,7 @@ class App:
 
         print(f"'{self.user_name}' kullanıcısının '{key}' anahtarındaki '{value}' yorumları: \n")
         for i in result:
-            print(f"Kullanıcı Adı: {i['user']} | Yorum: {i['comment']}")
+            print(f"Kullanıcı Adı: {i['user']} | Yorum: {i['comment']} | Rate: {i['rate']} | Analiz: {i['analysis']}")
 
     def innerMenu(self, db_list, excel_list):
         import_msg = "j- JSON'a Kaydet\nl- Excel'e Kaydet\nt- JSON ve Excel'e Kaydet"
@@ -296,6 +282,20 @@ class App:
             excel_list.append([self.user_name, i[0], i[1], i[2]])
 
         return excel_list
-                
+    
+    def denemeFunc(self, liste):
+        deneme_list = []
+        for i in liste:
+            deneme = self.sentimentAnalysis(i)
+
+            for j in deneme:
+                sentiment = j[0]
+                analysis = j[1]
+
+            deneme_list.append([i, sentiment, analysis])
         
+        comment_list = self.jsonSend(deneme_list)
+        excel_list = self.excelSend(deneme_list)
+        self.innerMenu(comment_list, excel_list)
+              
 App().userMenu()
