@@ -12,17 +12,20 @@ class App:
     
     def userMenu(self):
         print(100 * '-')
-        msg = "e- Giriş Yap\nr- Kayıt Ol"
+        msg = "| e- Giriş Yap\n| r- Kayıt Ol\n| x-Çıkış"
 
         while True:
             print(msg)
             input_enterance = input("Bir İşlem Seçiniz: ")
-            if input_enterance == 'e':
+            if input_enterance == 'e' or input_enterance == 'E':
                 self.user_login()
-            elif input_enterance == 'r':
+
+            elif input_enterance == 'r' or input_enterance == 'R':
                 self.user_register()
+            
             else:
-                break
+                print("!!! Geçersiz Tıklama")
+                print('\n')
         print('\n')
     
     def user_login(self):
@@ -72,12 +75,12 @@ class App:
         print(100 * '-')
         self.user_name = user_name
         print(f"Hoşgeldin {self.user_name}\n")
-        first_msg = "1- Yorum Ekle\n2- JSON'daki Verileri Gözlemle\n3- Database'deki Verileri Gözlemle\n4- Excel Dosyası İçerisindeki Verilerin Analizi"
+        first_msg = "| 1- Yorum Ekle\n| 2- JSON'daki Verileri Gözlemle\n| 3- Database'deki Verileri Gözlemle\n| 4- Excel Dosyası İçerisindeki Verilerin Analizi\n| x- Çıkış"
 
         
         while True:
             print(first_msg)
-            print(100 * '#')
+            print(100 * '-')
             input_msg = input("Menüden Bir İşlem Seçiniz: ")
 
             if input_msg == '1':
@@ -92,17 +95,20 @@ class App:
             elif input_msg == '4':
                 self.importExcel()
 
-            else:
+            elif input_msg == 'x' or input_msg == 'X':
                 break
+            
+            else:
+                print("!!! Geçersiz Tıklama")
+                print('\n')
     
     def addComment(self):
         print('\n')
         print(100 * '-')
         comment_size = int(input("Kaç Yorum Girilecek: "))
-
+        print(100 * '*')
         liste = []
         while comment_size > 0:
-            print(100 * '*')
             comment = input("Yorum Giriniz: ")
 
             liste.append(comment)
@@ -111,37 +117,65 @@ class App:
 
             if comment_size == 0:
                 self.denemeFunc(liste)
+        print(100 * '*')
                                        
     def viewJson(self):
+        print('\n')
+        print(100 * '-')
         file_name = input("Dosyanızın Adını Giriniz: ")
+        print(100 * '-')
 
-        f = self.fM(file_name)
-        result = f.viewJson()
+        if '.json' in file_name:
+            file_name = file_name
+        
+        else:
+            file_name = file_name + '.json'
 
-        for i in result:
-            print(i)
+        try: 
+            f = self.fM(file_name)
+            result = f.viewJson()
+
+            print('\n')
+            print(f"'{file_name}' Dosyası İçerisindeki Veriler: ")
+            for i in result:
+                print(100 * '-')
+                print(f"|{i['comment']} | {i['rate']} | {i['analysis']}|")
+            print(100 * '-')
+            print('\n')
+
+        except FileNotFoundError or FileExistsError:
+            print("Dosya Bulunamadı veya Geçersiz Dosya Türü")
+            print('\n')
     
     def importDb(self):
-        find_choose = "u- Kullanıcıya Göre Ara\nc- Yoruma Göre Ara\ns- Duygu Analizine Göre\nx- Çıkış"
+        print('\n')
+        print(100 * '-')
+        find_choose = "| u- Kullanıcıya Göre Ara\n| c- Yoruma Göre Ara\n| s- Duygu Analizine Göre\n| x- Çıkış"
 
         while True:
             print(find_choose)
+            print(100 * '-')
             import_msg = input("Aramak İstediğiniz Alanı Seçeniz: ")
 
-            if import_msg == 'u':
+            if import_msg == 'u' or import_msg == 'U':
                 self.viewDb('user', self.user_name)
                 break
             
-            elif import_msg == 'c':
+            elif import_msg == 'c' or import_msg == 'C':
+                print(100 * '-')
                 comment_msg = input("Aramak İstediğiniz Yorumu Yazınız: ")
+                print(100 * '-')
                 self.viewDb('comment', comment_msg)
                 break
             
-            elif import_msg == 's':
+            elif import_msg == 's' or import_msg == 'S':
+                print(100 * '-')
                 print("p- Pozitif\nn- Negatif\nr- Nötr")
+                print(100 * '-')
                 inner_input = input("Aramak İstediğiniz Duygu Analizi Sonucunu Giriniz: ")
+                print(100 * '-')
 
-                if inner_input == "p":
+                if inner_input == "p" or inner_input == "P":
                     self.viewDb('analysis', "Pozitif")
                 elif inner_input == "n":
                     self.viewDb('analysis', "Negatif")
@@ -149,11 +183,17 @@ class App:
                     self.viewDb('analysis', "Nötr")
                 break
 
-            elif import_msg == 'x':
+            elif import_msg == 'x' or import_msg == 'X':
                 break
+
+            else:
+                print("!!! Geçersiz Tıklama")
+                print('\n')
     
     def importExcel(self):
+        print(100 * '-')
         exel_file = input("Dosya Adınızı Giriniz [*xlsx]: ")
+        print(100 * '-')
 
         if '.xlsx' in exel_file:
             loc = exel_file
@@ -177,6 +217,7 @@ class App:
                 self.denemeFunc(liste)
         except FileNotFoundError:
             print("Dosya Bulunamadı")
+            print('\n')
     
     def exportExcel(self, excel_list):
 
@@ -196,14 +237,17 @@ class App:
             f.exportExcel(self.user_name, table_data)
 
             print(f"Veriler '{file_name}' Dosyasına Kaydedildi")
+            print(100 * '-')
         except FileNotFoundError or FileExistsError:
             print("Dosya Bulunamadı veya Geçersiz Dosya Türü")
+            print('\n')
     
     def addDb(self, db_list):
         d = self.dM()
         d.addComment(db_list)
+        print(100 * '-')
+        print("** Veriler Database'e Aktarıldı")
         print('\n')
-        print("Veriler Database'e Aktarıldı")
     
     def addJson(self, json_list):
         file_name = input("JSON Dosyasını Giriniz [*json]: ")
@@ -217,10 +261,13 @@ class App:
         try:              
             f = self.fM(file_name)
             f.addJson(json_list)
+            print(f"** Veriler '{file_name}' Dosyasına Kaydedildi")
             print('\n')
-            print(f"Veriler '{file_name}' Dosyasına Kaydedildi")
+
         except FileNotFoundError or FileExistsError:
+            print(100 * '-')
             print("Dosya Bulunamadı veya Geçersiz Dosya Türü")
+            print('\n')
 
         self.addDb(json_list)
     
@@ -231,33 +278,43 @@ class App:
 
         print(f"'{self.user_name}' kullanıcısının '{key}' anahtarındaki '{value}' yorumları: \n")
         for i in result:
-            print(f"Kullanıcı Adı: {i['user']} | Yorum: {i['comment']} | Rate: {i['rate']} | Analiz: {i['analysis']}")
+            print(100 * '-')
+            print(f"|Kullanıcı Adı: {i['user']} | Yorum: {i['comment']} | Rate: {i['rate']} | Analiz: {i['analysis']}|")
+        
+        print(100 * '-')
+        print('\n')
 
     def innerMenu(self, db_list, excel_list):
         print(100 * '-')
-        import_msg = "j- JSON'a Kaydet\nl- Excel'e Kaydet\nt- JSON ve Excel'e Kaydet\nx- Çıkış"
+        print("** Verileriniz Analiz Edilmiştir. Lütfen Aşağıdaki Menüden Bir İşlem Seçiniz")
+        import_msg = "| j- JSON'a Kaydet\n| l- Excel'e Kaydet\n| t- JSON ve Excel'e Kaydet\n |x- Çıkış"
 
         while True:
             print(import_msg)
-            print(100 * '#')
+            print(100 * '-')
             choose_import = input("Eklemek İstediğiniz Dosya Türünü Seçiniz: ")
+            print(100 * '-')
 
-            if choose_import == 'j':
+            if choose_import == 'j' or choose_import == 'J':
                 self.addJson(db_list)
                 break
                 
-            elif choose_import == 'l':
+            elif choose_import == 'l' or choose_import == 'L':
                 self.exportExcel(excel_list)
                 self.addDb(db_list)
                 break
 
-            elif choose_import == 't':
+            elif choose_import == 't' or choose_import == 'T':
                 self.addJson(db_list)
                 self.exportExcel(excel_list)
                 break
                 
-            elif choose_import == 'x':       
+            elif choose_import == 'x' or choose_import == 'X':       
                 break
+
+            else:
+                print("!!! Geçersiz Tıklama")
+                print('\n')
     
     def sentimentAnalysis(self, comment):
         my_list =[]
