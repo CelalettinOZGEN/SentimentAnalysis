@@ -9,7 +9,7 @@ class App:
         self.dM = dbManager
         self.fM = fileManager
         self.cM = Control()
-    
+  
     def userMenu(self):
         print(100 * '-')
         msg = "| e- Giriş Yap\n| r- Kayıt Ol\n| x-Çıkış"
