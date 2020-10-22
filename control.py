@@ -6,8 +6,8 @@ from tensorflow.python.keras.models import load_model
 
 class Control:
     def __init__(self):
-        self.dM = dbManager
-        self.fM = fileManager
+        self.db_manager = dbManager
+        self.file_manager = fileManager
     
 
     def sentimentAnalysis(self, comment):
@@ -103,7 +103,7 @@ class Control:
                 print('\n')
     
     def addDb(self, db_list):
-        d = self.dM()
+        d = self.db_manager()
         d.addComment(db_list)
         print(100 * '-')
         print("** Veriler Database'e Aktarıldı")
@@ -119,12 +119,12 @@ class Control:
             file_name = file_name + '.json'
 
         try:              
-            f = self.fM(file_name)
+            f = self.file_manager(file_name)
             f.addJson(json_list)
             print(f"** Veriler '{file_name}' Dosyasına Kaydedildi")
             print('\n')
 
-        except FileNotFoundError or FileExistsError:
+        except FileNotFoundError:
             print(100 * '-')
             print("Dosya Bulunamadı veya Geçersiz Dosya Türü")
             print('\n')
@@ -145,11 +145,11 @@ class Control:
             for i in excel_list:
                 table_data.append(i)
             
-            f = self.fM(file_name)
+            f = self.file_manager(file_name)
             f.exportExcel(self.user_name, table_data)
 
             print(f"Veriler '{file_name}' Dosyasına Kaydedildi")
             print(100 * '-')
-        except FileNotFoundError or FileExistsError:
+        except FileNotFoundError:
             print("Dosya Bulunamadı veya Geçersiz Dosya Türü")
             print('\n')

@@ -1,16 +1,22 @@
+import xlrd
 from dbManager import dbManager
 from fileManager import fileManager
 from control import Control
-import xlrd
+
 
 
 class App:
     def __init__(self):
-        self.dM = dbManager
-        self.fM = fileManager
-        self.cM = Control()
+        self.db_manager = dbManager
+        self.file_manager = fileManager
+        self.control_manager = Control()
   
     def userMenu(self):
+        """
+        DOCSTRING: Kullanıcı Giriş Menüsü
+        INPUT: e
+        OUTPUT: username, password
+        """
         print(100 * '-')
         msg = "| e- Giriş Yap\n| r- Kayıt Ol\n| x-Çıkış"
 
@@ -32,19 +38,23 @@ class App:
         print('\n')
     
     def user_login(self):
+        """
+        DOCSTRING: Kullanıcı Girişi
+        INPUT: name = ozgen , password = 123
+        OUTPUT: menu()
+        """
         hak = 3
         print(100 * '-')
         while hak > 0:
             user_name = input("Kullanıcı Adınız: ")
             user_password = input("Kullanıcı Şifreniz: ")
 
-            d = self.dM()
-            result = d.loginControl(user_name, user_password)
+            login_db = self.db_manager()
+            result = login_db.loginControl(user_name, user_password)
 
             if result:
                 self.menu(user_name)
-                break
-        
+
             else:
                 print("Hatalı Kullanıcı Adı veya Parolası.")
                 hak -= 1
@@ -54,12 +64,17 @@ class App:
         print('\n')
 
     def user_register(self):
+        """
+        DOCSTRING: Kullanıcı Kayıt
+        INPUT: name = ozgen , password = 123
+        OUTPUT: user_login()
+        """
         while True:
             user_name = input("Kullanıcı Adınız: ")
             user_password = input("Kullanıcı Şifreniz: ")
 
-            d = self.dM()
-            result = d.registerControl(user_name)
+            register_db = self.db_manager()
+            result = register_db.registerControl(user_name)
             
             if result:
                 print(f"'{user_name}' Kullanıcı Adı Mevcuttur. Lütfen Tekrar Deneyiniz")
@@ -69,15 +84,20 @@ class App:
                 user_dict['name'] = user_name
                 user_dict['password'] = user_password
 
-                d.addUser(user_dict)
+                register_db.addUser(user_dict)
 
                 print("Kullanıcınız Oluşturulmuştur")
                 break
             
     def menu(self, user_name):
+        """
+        DOCSTRING: Application Menu
+        INPUT: 1
+        OUTPUT: add_comment()
+        """
         print(100 * '-')
-        self.user_name = user_name
-        print(f"Hoşgeldin {self.user_name}\n")
+        self.user_name = user_name #*
+        print(f"Hoşgeldin {user_name}\n")
         first_msg = "| 1- Yorum Ekle\n| 2- JSON'daki Verileri Gözlemle\n| 3- Database'deki Verileri Gözlemle\n| 4- Excel Dosyası İçerisindeki Verilerin Analizi\n| x- Çıkış"
 
         
@@ -106,6 +126,11 @@ class App:
                 print('\n')
     
     def addComment(self):
+        """
+        DOCSTRING: Yorum girilmesi ve yorumların değişik dosya tipleirnde kayıt edilmesi
+        INPUT: comment = bu ürün çok iyi
+        OUTPUT: inner_menu()
+        """
         print('\n')
         print(100 * '-')
         comment_size = int(input("Kaç Yorum Girilecek: "))
@@ -120,11 +145,16 @@ class App:
             comment_size -= 1
 
             if comment_size == 0:
-                self.cM.listSend(self.user_name, comment_list)
+                self.control_manager.listSend(self.user_name, comment_list)
 
         print(100 * '*')
                                        
     def viewJson(self):
+        """
+        DOCSTRING: JSON'daki verilerin gözlemlenmesi
+        INPUT: file_name
+        OUTPUT: keys and values
+        """
         print('\n')
         print(100 * '-')
         file_name = input("Dosyanızın Adını Giriniz: ")
@@ -137,8 +167,8 @@ class App:
             file_name = file_name + '.json'
 
         try: 
-            f = self.fM(file_name)
-            result = f.viewJson()
+            json_file = self.file_manager(file_name)
+            result = json_file.viewJson()
 
             print('\n')
             print(f"'{file_name}' Dosyası İçerisindeki Veriler: ")
@@ -148,11 +178,16 @@ class App:
             print(100 * '-')
             print('\n')
 
-        except FileNotFoundError or FileExistsError:
+        except FileNotFoundError:
             print("Dosya Bulunamadı veya Geçersiz Dosya Türü")
             print('\n')
     
     def importDb(self):
+        """
+        DOCSTRING: Database içerisindeki verilerin gözlemlenmesi
+        INPUT: u
+        OUTPUT: viewDb()
+        """
         print('\n')
         print(100 * '-')
         find_choose = "| u- Kullanıcıya Göre Ara\n| c- Yoruma Göre Ara\n| s- Duygu Analizine Göre\n| x- Çıkış"
@@ -164,14 +199,14 @@ class App:
 
             if import_msg == 'u' or import_msg == 'U':
                 self.viewDb('user', self.user_name)
-                break
+                # break
             
             elif import_msg == 'c' or import_msg == 'C':
                 print(100 * '-')
                 comment_msg = input("Aramak İstediğiniz Yorumu Yazınız: ")
                 print(100 * '-')
                 self.viewDb('comment', comment_msg)
-                break
+                # break
             
             elif import_msg == 's' or import_msg == 'S':
                 print(100 * '-')
@@ -186,7 +221,7 @@ class App:
                     self.viewDb('analysis', "Negatif")
                 elif inner_input == "r":
                     self.viewDb('analysis', "Nötr")
-                break
+                # break
 
             elif import_msg == 'x' or import_msg == 'X':
                 break
@@ -196,6 +231,11 @@ class App:
                 print('\n')
     
     def importExcel(self):
+        """
+        DOCSTRING: Excel dosyasından alınan verilerin sentiment analiz yapılarak işlenmesi ve kayıt edilmesi.
+        INPUT: file_name
+        OUTPUT: inner_menu()
+        """
         print(100 * '-')
         exel_file = input("Dosya Adınızı Giriniz [*xlsx]: ")
         print(100 * '-')
@@ -204,11 +244,11 @@ class App:
             loc = exel_file
 
         else:
-            loc = exel_file + '.xlsx'
+            loc = exel_file+'.xlsx'
 
         try:
-            wb = xlrd.open_workbook(loc) 
-            sheet = wb.sheet_by_index(0)
+            work_book = xlrd.open_workbook(loc) 
+            sheet = work_book.sheet_by_index(0)
 
             if '.xlsx' in loc:
                 xlsx_list = []
@@ -218,16 +258,21 @@ class App:
 
                         xlsx_list.append(excel_comment)
 
-                self.cM.listSend(self.user_name, xlsx_list)
+                self.control_manager.listSend(self.user_name, xlsx_list)
 
         except FileNotFoundError:
             print("Dosya Bulunamadı")
             print('\n')
 
     def viewDb(self, key, value):
-        d = self.dM()
+        """
+        DOCSTRING: Database de bulunan verilerin çekilmesi
+        INPUT: key,value
+        OUTPUT: importDb()
+        """
+        view_db = self.db_manager()
 
-        result = d.importComment(self.user_name, key, value)
+        result = view_db.importComment(self.user_name, key, value)
 
         print(f"'{self.user_name}' kullanıcısının '{key}' anahtarındaki '{value}' yorumları: \n")
         for i in result:
