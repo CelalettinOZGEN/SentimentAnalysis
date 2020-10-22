@@ -1,3 +1,6 @@
+"""
+DOCSTRING: Sentiment analiz uygulama ekranı.
+"""
 import xlrd
 from dbManager import dbManager
 from fileManager import fileManager
@@ -6,37 +9,42 @@ from control import Control
 
 
 class App:
+    """
+    DOCSTRING: Uygulama yapısı ve menüler.
+    """
     def __init__(self):
         self.db_manager = dbManager
         self.file_manager = fileManager
         self.control_manager = Control()
-  
-    def userMenu(self):
+        self.user_name = 'Empty'
+        self.file_name = 'Empty'
+
+    def user_menu(self):
         """
         DOCSTRING: Kullanıcı Giriş Menüsü
         INPUT: e
         OUTPUT: username, password
         """
         print(100 * '-')
-        msg = "| e- Giriş Yap\n| r- Kayıt Ol\n| x-Çıkış"
+        msg = "| 1- Giriş Yap\n| 2- Kayıt Ol\n| 3-Çıkış"
 
         while True:
             print(msg)
             input_enterance = input("Bir İşlem Seçiniz: ")
-            if input_enterance == 'e' or input_enterance == 'E':
+            if input_enterance == '1':
                 self.user_login()
 
-            elif input_enterance == 'r' or input_enterance == 'R':
+            elif input_enterance == '2':
                 self.user_register()
-            
-            elif input_enterance == 'x' or input_enterance == 'X':
+
+            elif input_enterance == '3':
                 break
-            
+
             else:
                 print("!!! Geçersiz Tıklama")
                 print('\n')
         print('\n')
-    
+
     def user_login(self):
         """
         DOCSTRING: Kullanıcı Girişi
@@ -46,14 +54,15 @@ class App:
         hak = 3
         print(100 * '-')
         while hak > 0:
-            user_name = input("Kullanıcı Adınız: ")
+            self.user_name = input("Kullanıcı Adınız: ")
             user_password = input("Kullanıcı Şifreniz: ")
 
             login_db = self.db_manager()
-            result = login_db.loginControl(user_name, user_password)
+            result = login_db.loginControl(self.user_name, user_password)
 
             if result:
-                self.menu(user_name)
+                self.menu()
+                break
 
             else:
                 print("Hatalı Kullanıcı Adı veya Parolası.")
@@ -70,62 +79,63 @@ class App:
         OUTPUT: user_login()
         """
         while True:
-            user_name = input("Kullanıcı Adınız: ")
+            self.user_name = input("Kullanıcı Adınız: ")
             user_password = input("Kullanıcı Şifreniz: ")
 
             register_db = self.db_manager()
-            result = register_db.registerControl(user_name)
-            
+            result = register_db.registerControl(self.user_name)
             if result:
-                print(f"'{user_name}' Kullanıcı Adı Mevcuttur. Lütfen Tekrar Deneyiniz")
-            
+                print(f"'{self.user_name}' Kullanıcı Adı Mevcuttur. Lütfen Tekrar Deneyiniz")
+
             else:
                 user_dict = {}
-                user_dict['name'] = user_name
+                user_dict['name'] = self.user_name
                 user_dict['password'] = user_password
 
                 register_db.addUser(user_dict)
 
                 print("Kullanıcınız Oluşturulmuştur")
                 break
-            
-    def menu(self, user_name):
+
+    def menu(self):
         """
         DOCSTRING: Application Menu
         INPUT: 1
         OUTPUT: add_comment()
         """
         print(100 * '-')
-        self.user_name = user_name #*
-        print(f"Hoşgeldin {user_name}\n")
-        first_msg = "| 1- Yorum Ekle\n| 2- JSON'daki Verileri Gözlemle\n| 3- Database'deki Verileri Gözlemle\n| 4- Excel Dosyası İçerisindeki Verilerin Analizi\n| x- Çıkış"
+        #self.user_name = user_name #*
+        print(f"Hoşgeldin {self.user_name}\n")
+        first_msg = "| 1- Yorum Ekle\n| 2- JSON'daki Verileri Gözlemle\
+                     \n| 3- Database'deki Verileri Gözlemle\
+                     \n| 4- Excel Dosyası İçerisindeki Verilerin Analizi\n| 5- Çıkış"
 
-        
+
         while True:
             print(first_msg)
             print(100 * '-')
             input_msg = input("Menüden Bir İşlem Seçiniz: ")
 
             if input_msg == '1':
-                self.addComment()
-            
+                self.add_comment()
+
             elif input_msg == '2':
-                self.viewJson()
-            
+                self.view_json()
+
             elif input_msg == '3':
-                self.importDb()
+                self.import_db()
 
             elif input_msg == '4':
-                self.importExcel()
+                self.import_excel()
 
-            elif input_msg == 'x' or input_msg == 'X':
+            elif input_msg == '5':
                 break
-            
+
             else:
                 print("!!! Geçersiz Tıklama")
                 print('\n')
-    
-    def addComment(self):
+
+    def add_comment(self):
         """
         DOCSTRING: Yorum girilmesi ve yorumların değişik dosya tipleirnde kayıt edilmesi
         INPUT: comment = bu ürün çok iyi
@@ -141,15 +151,15 @@ class App:
             comment = input("Yorum Giriniz: ")
 
             comment_list.append(comment)
-            
+
             comment_size -= 1
 
             if comment_size == 0:
                 self.control_manager.listSend(self.user_name, comment_list)
 
         print(100 * '*')
-                                       
-    def viewJson(self):
+
+    def view_json(self):
         """
         DOCSTRING: JSON'daki verilerin gözlemlenmesi
         INPUT: file_name
@@ -157,21 +167,21 @@ class App:
         """
         print('\n')
         print(100 * '-')
-        file_name = input("Dosyanızın Adını Giriniz: ")
+        self.file_name = input("Dosyanızın Adını Giriniz: ")
         print(100 * '-')
 
-        if '.json' in file_name:
-            file_name = file_name
-        
-        else:
-            file_name = file_name + '.json'
+        if '.json' in self.file_name:
+            self.file_name = self.file_name
 
-        try: 
-            json_file = self.file_manager(file_name)
+        else:
+            self.file_name = self.file_name + '.json'
+
+        try:
+            json_file = self.file_manager(self.file_name)
             result = json_file.viewJson()
 
             print('\n')
-            print(f"'{file_name}' Dosyası İçerisindeki Veriler: ")
+            print(f"'{self.file_name}' Dosyası İçerisindeki Veriler: ")
             for i in result:
                 print(100 * '-')
                 print(f"|{i['comment']} | {i['rate']} | {i['analysis']}|")
@@ -181,8 +191,8 @@ class App:
         except FileNotFoundError:
             print("Dosya Bulunamadı veya Geçersiz Dosya Türü")
             print('\n')
-    
-    def importDb(self):
+
+    def import_db(self):
         """
         DOCSTRING: Database içerisindeki verilerin gözlemlenmesi
         INPUT: u
@@ -190,49 +200,51 @@ class App:
         """
         print('\n')
         print(100 * '-')
-        find_choose = "| u- Kullanıcıya Göre Ara\n| c- Yoruma Göre Ara\n| s- Duygu Analizine Göre\n| x- Çıkış"
+        find_choose = "| 1- Kullanıcıya Göre Ara\n| 2- Yoruma Göre Ara\
+                       \n| 3- Duygu Analizine Göre\n| 4- Çıkış"
 
         while True:
             print(find_choose)
             print(100 * '-')
             import_msg = input("Aramak İstediğiniz Alanı Seçeniz: ")
 
-            if import_msg == 'u' or import_msg == 'U':
-                self.viewDb('user', self.user_name)
+            if import_msg == '1':
+                self.view_db('user', self.user_name)
                 # break
-            
-            elif import_msg == 'c' or import_msg == 'C':
+
+            elif import_msg == '2':
                 print(100 * '-')
                 comment_msg = input("Aramak İstediğiniz Yorumu Yazınız: ")
                 print(100 * '-')
-                self.viewDb('comment', comment_msg)
+                self.view_db('comment', comment_msg)
                 # break
-            
-            elif import_msg == 's' or import_msg == 'S':
+
+            elif import_msg == '3':
                 print(100 * '-')
-                print("p- Pozitif\nn- Negatif\nr- Nötr")
+                print("1- Pozitif\n2- Negatif\n3- Nötrn\n4- Çıkış")
                 print(100 * '-')
                 inner_input = input("Aramak İstediğiniz Duygu Analizi Sonucunu Giriniz: ")
                 print(100 * '-')
 
-                if inner_input == "p" or inner_input == "P":
-                    self.viewDb('analysis', "Pozitif")
-                elif inner_input == "n":
-                    self.viewDb('analysis', "Negatif")
-                elif inner_input == "r":
-                    self.viewDb('analysis', "Nötr")
+                if inner_input == "1" :
+                    self.view_db('analysis', "Pozitif")
+                elif inner_input == "2":
+                    self.view_db('analysis', "Negatif")
+                elif inner_input == "3":
+                    self.view_db('analysis', "Nötr")
                 # break
 
-            elif import_msg == 'x' or import_msg == 'X':
+            elif import_msg == '4' :
                 break
 
             else:
                 print("!!! Geçersiz Tıklama")
                 print('\n')
-    
-    def importExcel(self):
+
+    def import_excel(self):
         """
-        DOCSTRING: Excel dosyasından alınan verilerin sentiment analiz yapılarak işlenmesi ve kayıt edilmesi.
+        DOCSTRING: Excel dosyasından alınan verilerin sentiment
+                   analiz yapılarak işlenmesi ve kayıt edilmesi.
         INPUT: file_name
         OUTPUT: inner_menu()
         """
@@ -247,9 +259,8 @@ class App:
             loc = exel_file+'.xlsx'
 
         try:
-            work_book = xlrd.open_workbook(loc) 
+            work_book = xlrd.open_workbook(loc)
             sheet = work_book.sheet_by_index(0)
-
             if '.xlsx' in loc:
                 xlsx_list = []
                 for col_index in range(sheet.ncols):
@@ -264,7 +275,7 @@ class App:
             print("Dosya Bulunamadı")
             print('\n')
 
-    def viewDb(self, key, value):
+    def view_db(self, key, value):
         """
         DOCSTRING: Database de bulunan verilerin çekilmesi
         INPUT: key,value
@@ -277,9 +288,10 @@ class App:
         print(f"'{self.user_name}' kullanıcısının '{key}' anahtarındaki '{value}' yorumları: \n")
         for i in result:
             print(100 * '-')
-            print(f"|Kullanıcı Adı: {i['user']} | Yorum: {i['comment']} | Rate: {i['rate']} | Analiz: {i['analysis']}|")
-        
+            print(f"|Kullanıcı Adı: {i['user']} | Yorum: {i['comment']} \
+                | Rate: {i['rate']} | Analiz: {i['analysis']}|")
         print(100 * '-')
         print('\n')
-         
-App().userMenu()
+
+
+App().user_menu()
