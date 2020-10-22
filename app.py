@@ -155,7 +155,7 @@ class App:
             comment_size -= 1
 
             if comment_size == 0:
-                self.control_manager.listSend(self.user_name, comment_list)
+                self.control_manager.list_send(self.user_name, comment_list)
 
         print(100 * '*')
 
@@ -269,7 +269,7 @@ class App:
 
                         xlsx_list.append(excel_comment)
 
-                self.control_manager.listSend(self.user_name, xlsx_list)
+                self.control_manager.list_send(self.user_name, xlsx_list)
 
         except FileNotFoundError:
             print("Dosya Bulunamadı")

@@ -1,16 +1,16 @@
+from tensorflow.python.keras.models import load_model
+from Sentiment import tokens_to_string, tokenizer, pad_sequences, max_tokens
+
 from dbManager import dbManager
 from fileManager import fileManager
-
-from Sentiment import tokens_to_string, tokenizer, pad_sequences, max_tokens
-from tensorflow.python.keras.models import load_model
 
 class Control:
     def __init__(self):
         self.db_manager = dbManager
         self.file_manager = fileManager
-    
 
-    def sentimentAnalysis(self, comment):
+
+    def sentiment_analysis(self, comment):
         my_list =[]
 
         model = load_model('model.h5')
@@ -21,8 +21,10 @@ class Control:
 
         if (sentiment>=0.85):
             analysis = "Pozitif"
+
         elif (0.40 <= sentiment < 0.85):
             analysis = "Nötr"
+
         else:
             analysis = "Negatif"
         
@@ -30,11 +32,11 @@ class Control:
 
         return my_list
 
-    def listSend(self, user_name, send_list):
+    def list_send(self, user_name, send_list):
         self.user_name = user_name
         sentiment_list = []
         for i in send_list:
-            comments = self.sentimentAnalysis(i)
+            comments = self.sentiment_analysis(i)
 
             for j in comments:
                 sentiment = j[0]
@@ -42,12 +44,12 @@ class Control:
 
             sentiment_list.append([i, sentiment, analysis])
         
-        comment_list = self.jsonSend(sentiment_list)
-        excel_list = self.excelSend(sentiment_list)
-        
-        self.innerMenu(comment_list, excel_list)
+        comment_list = self.json_send(sentiment_list)
+        excel_list = self.excel_send(sentiment_list)
+
+        self.inner_menu(comment_list, excel_list)
     
-    def jsonSend(self, json_list):
+    def json_send(self, json_list):
 
         comment_list = []
         for i in json_list:
@@ -58,22 +60,22 @@ class Control:
             commnet_dict['analysis'] = i[2]
 
             comment_list.append(commnet_dict)
-        
+
         return comment_list
     
-    def excelSend(self, excel_list):
+    def excel_send(self, excel_list):
 
         comment_list = []
         for i in excel_list:
             comment_list.append([self.user_name, i[0], i[1], i[2]]) #*user_name ata
 
         return comment_list
-    
 
-    def innerMenu(self, db_list, excel_list):
+
+    def inner_menu(self, db_list, excel_list):
         print(100 * '-')
         print("** Verileriniz Analiz Edilmiştir. Lütfen Aşağıdaki Menüden Bir İşlem Seçiniz")
-        import_msg = "| j- JSON'a Kaydet\n| l- Excel'e Kaydet\n| t- JSON ve Excel'e Kaydet\n| x- Çıkış"
+        import_msg = "| 1- JSON'a Kaydet\n| 2- Excel'e Kaydet\n| 3- JSON ve Excel'e Kaydet\n| 4- Çıkış"
 
         while True:
             print(import_msg)
@@ -81,42 +83,42 @@ class Control:
             choose_import = input("Eklemek İstediğiniz Dosya Türünü Seçiniz: ")
             print(100 * '-')
 
-            if choose_import == 'j' or choose_import == 'J':
-                self.addJson(db_list)
+            if choose_import == '1':
+                self.add_json(db_list)
                 break
                 
-            elif choose_import == 'l' or choose_import == 'L':
-                self.exportExcel(excel_list)
-                self.addDb(db_list)
+            elif choose_import == '2':
+                self.export_excel(excel_list)
+                self.add_db(db_list)
                 break
 
-            elif choose_import == 't' or choose_import == 'T':
-                self.addJson(db_list)
-                self.exportExcel(excel_list)
+            elif choose_import == '3':
+                self.add_json(db_list)
+                self.export_excel(excel_list)
                 break
                 
-            elif choose_import == 'x' or choose_import == 'X':       
+            elif choose_import == '4':       
                 break
 
             else:
                 print("!!! Geçersiz Tıklama")
                 print('\n')
     
-    def addDb(self, db_list):
+    def add_db(self, db_list):
         d = self.db_manager()
         d.addComment(db_list)
         print(100 * '-')
         print("** Veriler Database'e Aktarıldı")
         print('\n')
 
-    def addJson(self, json_list):
+    def add_json(self, json_list):
         file_name = input("JSON Dosyasını Giriniz [*json]: ")
 
         if '.json' in file_name:
             file_name = file_name
 
         else:
-            file_name = file_name + '.json'
+            file_name =file_name + '.json'
 
         try:              
             f = self.file_manager(file_name)
@@ -129,9 +131,9 @@ class Control:
             print("Dosya Bulunamadı veya Geçersiz Dosya Türü")
             print('\n')
 
-        self.addDb(json_list)
+        self.add_db(json_list)
     
-    def exportExcel(self, excel_list):
+    def export_excel(self, excel_list):
 
         file_name = input("Dosya Adını Giriniz [*xls]: ")
         if '.xls' in file_name:
