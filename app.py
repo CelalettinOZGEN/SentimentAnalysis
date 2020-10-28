@@ -209,33 +209,39 @@ class App:
             import_msg = input("Aramak İstediğiniz Alanı Seçeniz: ")
 
             if import_msg == '1':
-                self.view_db('user', self.user_name)
+                self.control_manager.view_db(self.user_name,'user', self.user_name)
+                # self.view_db('user', self.user_name)
                 # break
 
             elif import_msg == '2':
                 print(100 * '-')
                 comment_msg = input("Aramak İstediğiniz Yorumu Yazınız: ")
                 print(100 * '-')
-                self.view_db('comment', comment_msg)
+                self.control_manager.view_db(self.user_name, 'comment', comment_msg)
+                #* self.view_db('comment', comment_msg)
                 # break
 
             elif import_msg == '3':
                 print(100 * '-')
-                print("1- Pozitif\n2- Negatif\n3- Nötrn\n4- Çıkış")
+                print("| 1- Pozitif\n| 2- Negatif\n| 3- Nötrn\n| 4- Çıkış")
                 print(100 * '-')
                 inner_input = input("Aramak İstediğiniz Duygu Analizi Sonucunu Giriniz: ")
                 print(100 * '-')
 
                 if inner_input == "1" :
-                    self.view_db('analysis', "Pozitif")
+                    self.control_manager.view_db(self.user_name, 'analysis', "Pozitif")
+                    # self.view_db('analysis', "Pozitif")
                 elif inner_input == "2":
-                    self.view_db('analysis', "Negatif")
+                    self.control_manager.view_db(self.user_name, 'analysis', "Negatif")
+                    # self.view_db('analysis', "Negatif")
                 elif inner_input == "3":
-                    self.view_db('analysis', "Nötr")
+                    self.control_manager.view_db(self.user_name, 'analysis', "Nötr")
+                    # self.view_db('analysis', "Nötr")
                 # break
 
             elif import_msg == '4' :
                 break
+
 
             else:
                 print("!!! Geçersiz Tıklama")
@@ -275,23 +281,6 @@ class App:
             print("Dosya Bulunamadı")
             print('\n')
 
-    def view_db(self, key, value):
-        """
-        DOCSTRING: Database de bulunan verilerin çekilmesi
-        INPUT: key,value
-        OUTPUT: importDb()
-        """
-        view_db = self.db_manager()
 
-        result = view_db.importComment(self.user_name, key, value)
-
-        print(f"'{self.user_name}' kullanıcısının '{key}' anahtarındaki '{value}' yorumları: \n")
-        for i in result:
-            print(100 * '-')
-            print(f"|Kullanıcı Adı: {i['user']} | Yorum: {i['comment']} \
-                | Rate: {i['rate']} | Analiz: {i['analysis']}|")
-        print(100 * '-')
-        print('\n')
-
-
-App().user_menu()
+if __name__ == "__main__":
+    App().user_menu()

@@ -2,12 +2,14 @@
 DOCSTRING: Sentiment analizi ve analizi yapılan yorumların \
 dosya türlerine göre ve database'e kaydedilme işlemleri.
 """
+import numpy as np
 from tensorflow.python.keras.models import load_model
 from Sentiment import tokenizer, pad_sequences, max_tokens
 #unused-import --> tokens_to_string
 
 from dbManager import dbManager
 from fileManager import fileManager
+from graph import Graph
 
 class Control:
     """
@@ -85,6 +87,7 @@ class Control:
             comment_list.append(commnet_dict)
 
         return comment_list
+    
     @staticmethod
     def excel_send(user_name, excel_list):
         """
@@ -206,3 +209,54 @@ class Control:
         except FileNotFoundError:
             print("Dosya Bulunamadı veya Geçersiz Dosya Türü")
             print('\n')
+    
+    def view_db(self, user_name, key, value):
+        """
+        DOCSTRING: Database de bulunan verilerin çekilmesi
+        INPUT: key,value
+        OUTPUT: importDb()
+        """
+        view_db = self.db_manager()
+
+        result = view_db.importComment(user_name, key, value)
+        
+        deneme_list = []
+        for deneme in result:
+            deneme_list.append(deneme)
+
+        total = np.count_nonzero(deneme_list)
+
+
+        print(f"\n'{user_name}' kullanıcısının '{key}' anahtarındaki '{value}' yorumları '{total}' adettir:")
+        p_list = []
+        n_list = []
+        r_list = []
+        for i in deneme_list:
+            print(100 * '-')
+            print(f"|Kullanıcı Adı: {i['user']} | Yorum: {i['comment']} \
+        | Rate: {i['rate']} | Analiz: {i['analysis']}|")
+            
+            if i['analysis'] == "Pozitif":
+                p_list.append(i['analysis'])
+
+            elif i['analysis'] == "Negatif":
+                n_list.append(i['analysis'])
+
+            elif i['analysis'] == "Nötr":
+                r_list.append(i['analysis'])
+
+        total_p = np.count_nonzero(p_list)
+        total_n = np.count_nonzero(n_list)
+        total_r = np.count_nonzero(r_list)
+
+        
+        print(100 * '-')
+        graph_msg = input("Grafikte Görmek İçin 0'a Basınız : ")
+        if graph_msg == '0':
+            Graph(total, total_p, total_n, total_r)
+
+        elif graph_msg == '9':
+            print('\n')
+
+if __name__ == "__main":
+    print("Bu Sayfadan İşlem Yapamazsınız")
