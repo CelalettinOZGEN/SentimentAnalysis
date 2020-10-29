@@ -3,6 +3,7 @@ DOCSTRING: Sentiment analizi ve analizi yapılan yorumların \
 dosya türlerine göre ve database'e kaydedilme işlemleri.
 """
 import numpy as np
+from datetime import datetime
 from tensorflow.python.keras.models import load_model
 from Sentiment import tokenizer, pad_sequences, max_tokens
 #unused-import --> tokens_to_string
@@ -18,6 +19,8 @@ class Control:
     def __init__(self):
         self.db_manager = dbManager
         self.file_manager = fileManager
+        now = datetime.today()
+        self.date = datetime.strftime(now, '%d.%m.%Y')
 
     @staticmethod
     def sentiment_analysis(comment):
@@ -63,13 +66,13 @@ class Control:
 
             sentiment_list.append([i, sentiment, analysis])
 
-        comment_list = self.json_send(user_name, sentiment_list)
-        excel_list = self.excel_send(user_name,sentiment_list)
+        comment_list = self.json_send(user_name, self.date, sentiment_list)
+        excel_list = self.excel_send(user_name, self.date, sentiment_list)
 
         self.inner_menu(user_name, comment_list, excel_list)
 
     @staticmethod
-    def json_send(user_name, json_list):
+    def json_send(user_name, date, json_list):
         """
         DOCSTRING: list_send() fonksiyonundan gelen json_list'in özelliklerine \
             ayrıştırılarak JSON dosya yapısı ile oluşturulması.
@@ -79,7 +82,8 @@ class Control:
         comment_list = []
         for i in json_list:
             commnet_dict = {}
-            commnet_dict['user'] = user_name #* username ata
+            commnet_dict['user'] = user_name
+            commnet_dict['date'] = date
             commnet_dict['comment'] = i[0]
             commnet_dict['rate'] = i[1]
             commnet_dict['analysis'] = i[2]
@@ -89,7 +93,7 @@ class Control:
         return comment_list
     
     @staticmethod
-    def excel_send(user_name, excel_list):
+    def excel_send(user_name, date, excel_list):
         """
         DOCSTRING: list_send() fonksiyonundan gelen excel_list'in özelliklerine \
             ayrıştırılarak EXCEL dosya yapısı ile oluşturulması.
@@ -99,7 +103,7 @@ class Control:
 
         comment_list = []
         for i in excel_list:
-            comment_list.append([user_name, i[0], i[1], i[2]]) #*user_name ata
+            comment_list.append([user_name, date, i[0], i[1], i[2]]) #*user_name ata
 
         return comment_list
 
@@ -196,7 +200,7 @@ class Control:
             file_name = file_name + '.xls'
 
         try:
-            table_data = [['User', 'Comment', 'Rate', 'Sentiment']]
+            table_data = [['User', 'Date', 'Comment', 'Rate', 'Sentiment']]
 
             for i in excel_list:
                 table_data.append(i)
@@ -231,10 +235,10 @@ class Control:
         p_list = []
         n_list = []
         r_list = []
+
         for i in deneme_list:
             print(100 * '-')
-            print(f"|Kullanıcı Adı: {i['user']} | Yorum: {i['comment']} \
-        | Rate: {i['rate']} | Analiz: {i['analysis']}|")
+            print(f"|Kullanıcı Adı: {i['user']} | Tarih: {i['date']} | Yorum: {i['comment']} | Rate: {i['rate']} | Analiz: {i['analysis']}|")
             
             if i['analysis'] == "Pozitif":
                 p_list.append(i['analysis'])

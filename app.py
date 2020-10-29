@@ -7,7 +7,6 @@ from fileManager import fileManager
 from control import Control
 
 
-
 class App:
     """
     DOCSTRING: Uygulama yapısı ve menüler.
@@ -106,6 +105,7 @@ class App:
         print(100 * '-')
         #self.user_name = user_name #*
         print(f"Hoşgeldin {self.user_name}\n")
+ 
         first_msg = "| 1- Yorum Ekle\n| 2- JSON'daki Verileri Gözlemle\
                      \n| 3- Database'deki Verileri Gözlemle\
                      \n| 4- Excel Dosyası İçerisindeki Verilerin Analizi\n| 5- Çıkış"
@@ -200,7 +200,7 @@ class App:
         """
         print('\n')
         print(100 * '-')
-        find_choose = "| 1- Kullanıcıya Göre Ara\n| 2- Yoruma Göre Ara\
+        find_choose = "| 1- Kullanıcıya Göre Ara\n| 2- Tarihe Göre Ara\
                        \n| 3- Duygu Analizine Göre\n| 4- Çıkış"
 
         while True:
@@ -210,16 +210,12 @@ class App:
 
             if import_msg == '1':
                 self.control_manager.view_db(self.user_name,'user', self.user_name)
-                # self.view_db('user', self.user_name)
-                # break
 
             elif import_msg == '2':
                 print(100 * '-')
-                comment_msg = input("Aramak İstediğiniz Yorumu Yazınız: ")
+                comment_msg = input("Aramak İstediğiniz Tarihi Yazınız (D.M.Y): ")
                 print(100 * '-')
-                self.control_manager.view_db(self.user_name, 'comment', comment_msg)
-                #* self.view_db('comment', comment_msg)
-                # break
+                self.control_manager.view_db(self.user_name, 'date', comment_msg)
 
             elif import_msg == '3':
                 print(100 * '-')
@@ -230,13 +226,13 @@ class App:
 
                 if inner_input == "1" :
                     self.control_manager.view_db(self.user_name, 'analysis', "Pozitif")
-                    # self.view_db('analysis', "Pozitif")
+
                 elif inner_input == "2":
                     self.control_manager.view_db(self.user_name, 'analysis', "Negatif")
-                    # self.view_db('analysis', "Negatif")
+
                 elif inner_input == "3":
                     self.control_manager.view_db(self.user_name, 'analysis', "Nötr")
-                    # self.view_db('analysis', "Nötr")
+
                 # break
 
             elif import_msg == '4' :
