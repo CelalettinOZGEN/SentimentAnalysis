@@ -214,7 +214,7 @@ class Control:
             print("Dosya Bulunamadı veya Geçersiz Dosya Türü")
             print('\n')
     
-    def view_db(self, user_name, key, value):
+    def view_db(self, user_name, key, value, graph_title):
         """
         DOCSTRING: Database de bulunan verilerin çekilmesi
         INPUT: key,value
@@ -238,6 +238,7 @@ class Control:
 
         for i in deneme_list:
             print(100 * '-')
+
             print(f"|Kullanıcı Adı: {i['user']} | Tarih: {i['date']} | Yorum: {i['comment']} | Rate: {i['rate']} | Analiz: {i['analysis']}|")
             
             if i['analysis'] == "Pozitif":
@@ -248,19 +249,36 @@ class Control:
 
             elif i['analysis'] == "Nötr":
                 r_list.append(i['analysis'])
+            
 
         total_p = np.count_nonzero(p_list)
         total_n = np.count_nonzero(n_list)
         total_r = np.count_nonzero(r_list)
+        title = value+' '+graph_title
 
+        self.graphView(total, total_p, total_n, total_r, title)
         
         print(100 * '-')
-        graph_msg = input("Grafikte Görmek İçin 0'a Basınız : ")
-        if graph_msg == '0':
-            Graph(total, total_p, total_n, total_r)
+         
+    def graphView(self, total, total_p, total_n, total_r, title):
+        g_msg = "| 0- Grafik Olarak Gözlemle\n| 9- Çıkış"
 
-        elif graph_msg == '9':
+        while True:
             print('\n')
+            print(g_msg)
+            graph_msg = input("Yapmak İstediğiniz İşlemi Seçiniz: ")
+            print("-" * 100)
+
+            if graph_msg == '0':
+                if total > 0:
+                    Graph(total, total_p, total_n, total_r,title)
+                else:
+                    print("** Grafik Değerleri Yetersizdir")
+                    break
+            elif graph_msg == '9':
+                break
+
+
 
 if __name__ == "__main":
     print("Bu Sayfadan İşlem Yapamazsınız")

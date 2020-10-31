@@ -5,7 +5,7 @@ import xlrd
 from dbManager import dbManager
 from fileManager import fileManager
 from control import Control
-
+from getpass import getpass
 
 class App:
     """
@@ -54,7 +54,7 @@ class App:
         print(100 * '-')
         while hak > 0:
             self.user_name = input("Kullanıcı Adınız: ")
-            user_password = input("Kullanıcı Şifreniz: ")
+            user_password = getpass("Kullanıcı Şifreniz: ")
 
             login_db = self.db_manager()
             result = login_db.loginControl(self.user_name, user_password)
@@ -79,7 +79,7 @@ class App:
         """
         while True:
             self.user_name = input("Kullanıcı Adınız: ")
-            user_password = input("Kullanıcı Şifreniz: ")
+            user_password = getpass("Kullanıcı Şifreniz: ")
 
             register_db = self.db_manager()
             result = register_db.registerControl(self.user_name)
@@ -209,13 +209,13 @@ class App:
             import_msg = input("Aramak İstediğiniz Alanı Seçeniz: ")
 
             if import_msg == '1':
-                self.control_manager.view_db(self.user_name,'user', self.user_name)
+                self.control_manager.view_db(self.user_name,'user', self.user_name, 'Kullanıcısının Aldığı Yorumlar')
 
             elif import_msg == '2':
                 print(100 * '-')
                 comment_msg = input("Aramak İstediğiniz Tarihi Yazınız (D.M.Y): ")
                 print(100 * '-')
-                self.control_manager.view_db(self.user_name, 'date', comment_msg)
+                self.control_manager.view_db(self.user_name, 'date', comment_msg, 'Tarihinde Alınan Yorumlar')
 
             elif import_msg == '3':
                 print(100 * '-')
@@ -225,13 +225,13 @@ class App:
                 print(100 * '-')
 
                 if inner_input == "1" :
-                    self.control_manager.view_db(self.user_name, 'analysis', "Pozitif")
+                    self.control_manager.view_db(self.user_name, 'analysis', "Pozitif", 'Yorumlar')
 
                 elif inner_input == "2":
-                    self.control_manager.view_db(self.user_name, 'analysis', "Negatif")
+                    self.control_manager.view_db(self.user_name, 'analysis', "Negatif", 'Yorumlar')
 
                 elif inner_input == "3":
-                    self.control_manager.view_db(self.user_name, 'analysis', "Nötr")
+                    self.control_manager.view_db(self.user_name, 'analysis', "Nötr", 'Yorumlar')
 
                 # break
 
