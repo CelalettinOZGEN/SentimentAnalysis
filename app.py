@@ -6,6 +6,7 @@ from dbManager import dbManager
 from fileManager import fileManager
 from control import Control
 from getpass import getpass
+from userControl import ControlUser
 
 class App:
     """
@@ -81,19 +82,27 @@ class App:
             self.user_name = input("Kullanıcı Adınız: ")
             user_password = getpass("Kullanıcı Şifreniz: ")
 
-            register_db = self.db_manager()
-            result = register_db.registerControl(self.user_name)
-            if result:
-                print(f"'{self.user_name}' Kullanıcı Adı Mevcuttur. Lütfen Tekrar Deneyiniz")
+            control = ControlUser(user_password)
+            password_control = control.passwordControl()
 
+
+            if password_control is not None:
+                register_db = self.db_manager()
+                result = register_db.registerControl(self.user_name)
+
+                if result:
+                    print(f"'{self.user_name}' Kullanıcı Adı Mevcuttur. Lütfen Tekrar Deneyiniz")
+
+                else:
+                    user_dict = {}
+                    user_dict['name'] = self.user_name
+                    user_dict['password'] = user_password
+
+                    register_db.addUser(user_dict)
+
+                    print("** Kullanıcınız Oluşturulmuştur. **\n")
+                    break
             else:
-                user_dict = {}
-                user_dict['name'] = self.user_name
-                user_dict['password'] = user_password
-
-                register_db.addUser(user_dict)
-
-                print("Kullanıcınız Oluşturulmuştur")
                 break
 
     def menu(self):
